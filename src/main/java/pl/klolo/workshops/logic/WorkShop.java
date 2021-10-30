@@ -104,14 +104,20 @@ class WorkShop {
      * Zwraca liczbę firm we wszystkich holdingach.
      */
     long getCompaniesAmount() {
-        return -1;
+        long numberOfAllCompany = 0;
+        for (Holding holding:holdings) {
+            numberOfAllCompany += holding.getCompanies().size();
+        }
+        return numberOfAllCompany;
     }
 
     /**
      * Zwraca liczbę firm we wszystkich holdingach. Napisz to za pomocą strumieni.
      */
     long getCompaniesAmountAsStream() {
-        return -1;
+        return holdings.stream()
+                .map(holding -> holding.getCompanies().size())
+                .reduce(0, Integer::sum);
     }
 
     /**
