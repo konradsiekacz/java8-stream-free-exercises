@@ -124,14 +124,24 @@ class WorkShop {
      * Zwraca liczbę wszystkich pracowników we wszystkich firmach.
      */
     long getAllUserAmount() {
-        return -1;
+        long numberOfAllEmployees = 0;
+        for (Holding holding: holdings) {
+            for (Company company: holding.getCompanies()) {
+                numberOfAllEmployees+= company.getUsers().size();
+            };
+        }
+        return numberOfAllEmployees;
     }
 
     /**
      * Zwraca liczbę wszystkich pracowników we wszystkich firmach. Napisz to za pomocą strumieni.
      */
     long getAllUserAmountAsStream() {
-        return -1;
+        return holdings.stream()
+                .flatMap(holding -> holding.getCompanies()
+                        .stream()
+                        .map(company -> company.getUsers().size()))
+                .reduce(0,Integer::sum);
     }
 
     /**
