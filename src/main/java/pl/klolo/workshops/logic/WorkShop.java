@@ -77,14 +77,27 @@ class WorkShop {
      * Zwraca nazwy wszystkich holdingów sklejone w jeden string i posortowane. String ma postać: (Coca-Cola, Nestle, Pepsico)
      */
     String getHoldingNamesAsString() {
-        return null;
+        List<String> holdingsNames = holdings.stream()
+                .map(Holding::getName).sorted(String::compareTo)
+                .collect(Collectors.toList());
+
+        StringBuilder holdingNamesAsString = new StringBuilder();
+        holdingNamesAsString.append("(");
+
+        for (String holdingName:holdingsNames) {
+            holdingNamesAsString.append(holdingName).append(", ");
+        }
+        return holdingNamesAsString.substring(0,holdingNamesAsString.length()-2) + ")";
     }
 
     /**
      * Zwraca nazwy wszystkich holdingów sklejone w jeden string i posortowane. String ma postać: (Coca-Cola, Nestle, Pepsico). Napisz to za pomocą strumieni.
      */
     String getHoldingNamesAsStringAsStream() {
-        return null;
+        return holdings.stream()
+                .map(Holding::getName)
+                .sorted(String::compareTo)
+                .collect(Collectors.joining(", ","(",")"));
     }
 
     /**
