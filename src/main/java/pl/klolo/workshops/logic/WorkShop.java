@@ -177,7 +177,13 @@ class WorkShop {
      * Zwraca listę wszystkich firm jako listę, której implementacja to LinkedList.
      */
     LinkedList<String> getAllCompaniesNamesAsLinkedList() {
-        return null;
+        LinkedList<String> companies = new LinkedList<>();
+        for (Holding holding:holdings) {
+            for (Company company:holding.getCompanies()) {
+                companies.add(company.getName());
+            }
+        }
+        return companies;
     }
 
     /**
@@ -185,7 +191,10 @@ class WorkShop {
      * pomocą strumieni.
      */
     LinkedList<String> getAllCompaniesNamesAsLinkedListAsStream() {
-        return null;
+        return getStreamOfHoldings(holdings)
+                .flatMap(holding -> holding.getCompanies()
+                .stream().map(Company::getName))
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
