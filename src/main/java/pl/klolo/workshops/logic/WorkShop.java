@@ -49,7 +49,7 @@ class WorkShop {
      * Metoda zwraca liczbę holdingów w których jest przynajmniej jedna firma. Napisz to za pomocą strumieni.
      */
     long getHoldingsWhereAreCompaniesAsStream() {
-        return holdings.stream()
+        return getStreamOfHoldings(holdings)
                 .filter(holding -> holding.getCompanies().size() > 0).count();
     }
 
@@ -68,7 +68,7 @@ class WorkShop {
      * Zwraca nazwy wszystkich holdingów pisane z małej litery w formie listy. Napisz to za pomocą strumieni.
      */
     List<String> getHoldingNamesAsStream() {
-        return holdings.stream()
+        return getStreamOfHoldings(holdings)
                 .map(holding -> holding.getName().toLowerCase())
                 .collect(Collectors.toList());
     }
@@ -77,27 +77,27 @@ class WorkShop {
      * Zwraca nazwy wszystkich holdingów sklejone w jeden string i posortowane. String ma postać: (Coca-Cola, Nestle, Pepsico)
      */
     String getHoldingNamesAsString() {
-        List<String> holdingsNames = holdings.stream()
+        List<String> holdingsNames = getStreamOfHoldings(holdings)
                 .map(Holding::getName).sorted(String::compareTo)
                 .collect(Collectors.toList());
 
         StringBuilder holdingNamesAsString = new StringBuilder();
         holdingNamesAsString.append("(");
 
-        for (String holdingName:holdingsNames) {
+        for (String holdingName : holdingsNames) {
             holdingNamesAsString.append(holdingName).append(", ");
         }
-        return holdingNamesAsString.substring(0,holdingNamesAsString.length()-2) + ")";
+        return holdingNamesAsString.substring(0, holdingNamesAsString.length() - 2) + ")";
     }
 
     /**
      * Zwraca nazwy wszystkich holdingów sklejone w jeden string i posortowane. String ma postać: (Coca-Cola, Nestle, Pepsico). Napisz to za pomocą strumieni.
      */
     String getHoldingNamesAsStringAsStream() {
-        return holdings.stream()
+        return getStreamOfHoldings(holdings)
                 .map(Holding::getName)
                 .sorted(String::compareTo)
-                .collect(Collectors.joining(", ","(",")"));
+                .collect(Collectors.joining(", ", "(", ")"));
     }
 
     /**
@@ -105,7 +105,7 @@ class WorkShop {
      */
     long getCompaniesAmount() {
         long numberOfAllCompany = 0;
-        for (Holding holding:holdings) {
+        for (Holding holding : holdings) {
             numberOfAllCompany += holding.getCompanies().size();
         }
         return numberOfAllCompany;
@@ -115,7 +115,7 @@ class WorkShop {
      * Zwraca liczbę firm we wszystkich holdingach. Napisz to za pomocą strumieni.
      */
     long getCompaniesAmountAsStream() {
-        return holdings.stream()
+        return getStreamOfHoldings(holdings)
                 .map(holding -> holding.getCompanies().size())
                 .reduce(0, Integer::sum);
     }
@@ -125,10 +125,11 @@ class WorkShop {
      */
     long getAllUserAmount() {
         long numberOfAllEmployees = 0;
-        for (Holding holding: holdings) {
-            for (Company company: holding.getCompanies()) {
-                numberOfAllEmployees+= company.getUsers().size();
-            };
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
+                numberOfAllEmployees += company.getUsers().size();
+            }
+            ;
         }
         return numberOfAllEmployees;
     }
@@ -137,18 +138,24 @@ class WorkShop {
      * Zwraca liczbę wszystkich pracowników we wszystkich firmach. Napisz to za pomocą strumieni.
      */
     long getAllUserAmountAsStream() {
-        return holdings.stream()
+        return getStreamOfHoldings(holdings)
                 .flatMap(holding -> holding.getCompanies()
                         .stream()
                         .map(company -> company.getUsers().size()))
-                .reduce(0,Integer::sum);
+                .reduce(0, Integer::sum);
     }
 
     /**
      * Zwraca listę wszystkich nazw firm w formie listy.
      */
     List<String> getAllCompaniesNames() {
-        return null;
+        List<String> companiesNames = new ArrayList<>();
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
+                companiesNames.add(company.getName());
+            }
+        }
+        return companiesNames;
     }
 
     /**
@@ -156,7 +163,14 @@ class WorkShop {
      * pomocą strumieni.
      */
     List<String> getAllCompaniesNamesAsStream() {
-        return null;
+        return getStreamOfHoldings(holdings)
+                .flatMap(holding -> holding.getCompanies().stream()
+                        .map(Company::getName))
+                .collect(Collectors.toList());
+    }
+
+    private static Stream<Holding> getStreamOfHoldings(List<Holding> holdings) {
+        return holdings.stream();
     }
 
     /**
