@@ -228,20 +228,35 @@ class WorkShop {
      */
     String getAllCompaniesNamesAsStringUsingStringBuilder() {
         return null;
+//                getStreamOfHoldings(holdings)
+//                .flatMap(holding -> holding.getCompanies().stream()
+//                .map(company -> company.getName()).collect(StringBuilder::new, (x,y) -> x.append(y), (a,b) -> a.append("+").append(b)))
+//                .toString();
     }
 
     /**
      * Zwraca liczbę wszystkich rachunków, użytkowników we wszystkich firmach.
      */
     long getAllUserAccountsAmount() {
-        return -1;
+        long numberOfAllUserAccount = 0;
+        for (Holding holding:holdings) {
+            for (Company company:holding.getCompanies()) {
+                for (User user: company.getUsers()) {
+                    numberOfAllUserAccount += user.getAccounts().size();
+                }
+            }
+        }
+        return numberOfAllUserAccount;
     }
+
 
     /**
      * Zwraca liczbę wszystkich rachunków, użytkowników we wszystkich firmach. Napisz to za pomocą strumieni.
      */
     long getAllUserAccountsAmountAsStream() {
-        return -1;
+        return getCompanyStream()
+                .flatMap(company -> company.getUsers().stream()
+                .map(user -> user.getAccounts().size())).reduce(0,Integer::sum);
     }
 
     /**
@@ -651,7 +666,8 @@ class WorkShop {
      * Zwraca strumień wszystkich firm.
      */
     private Stream<Company> getCompanyStream() {
-        return null;
+        return holdings.stream()
+                .flatMap(holding -> holding.getCompanies().stream());
     }
 
     /**
