@@ -178,8 +178,8 @@ class WorkShop {
      */
     LinkedList<String> getAllCompaniesNamesAsLinkedList() {
         LinkedList<String> companies = new LinkedList<>();
-        for (Holding holding:holdings) {
-            for (Company company:holding.getCompanies()) {
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
                 companies.add(company.getName());
             }
         }
@@ -193,7 +193,7 @@ class WorkShop {
     LinkedList<String> getAllCompaniesNamesAsLinkedListAsStream() {
         return getStreamOfHoldings(holdings)
                 .flatMap(holding -> holding.getCompanies()
-                .stream().map(Company::getName))
+                        .stream().map(Company::getName))
                 .collect(Collectors.toCollection(LinkedList::new));
     }
 
@@ -202,12 +202,12 @@ class WorkShop {
      */
     String getAllCompaniesNamesAsString() {
         StringBuilder strb = new StringBuilder();
-        for (Holding holding:holdings) {
-            for (Company company:holding.getCompanies()) {
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
                 strb.append(company.getName()).append("+");
             }
         }
-        return strb.substring(0,strb.length()-1);
+        return strb.substring(0, strb.length() - 1);
     }
 
     /**
@@ -239,9 +239,9 @@ class WorkShop {
      */
     long getAllUserAccountsAmount() {
         long numberOfAllUserAccount = 0;
-        for (Holding holding:holdings) {
-            for (Company company:holding.getCompanies()) {
-                for (User user: company.getUsers()) {
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
+                for (User user : company.getUsers()) {
                     numberOfAllUserAccount += user.getAccounts().size();
                 }
             }
@@ -256,21 +256,38 @@ class WorkShop {
     long getAllUserAccountsAmountAsStream() {
         return getCompanyStream()
                 .flatMap(company -> company.getUsers().stream()
-                .map(user -> user.getAccounts().size())).reduce(0,Integer::sum);
+                        .map(user -> user.getAccounts().size())).reduce(0, Integer::sum);
     }
 
     /**
      * Zwraca listę wszystkich walut w jakich są rachunki jako string, w którym wartości występują bez powtórzeń i są posortowane.
      */
     String getAllCurrencies() {
-        return null;
+        Set<String> currencies = new TreeSet<>();
+        StringBuilder strb = new StringBuilder();
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
+                for (User user : company.getUsers()) {
+                    for (Account account : user.getAccounts()) {
+                        String currency = account.getCurrency().toString();
+                        currencies.add(currency);
+                    }
+                }
+            }
+        }
+        for (String currency : currencies) {
+            strb.append(currency).append(", ");
+        }
+        return strb.substring(0, strb.length() - 2);
     }
 
     /**
      * Zwraca listę wszystkich walut w jakich są rachunki jako string, w którym wartości występują bez powtórzeń i są posortowane. Napisz to za pomocą strumieni.
      */
     String getAllCurrenciesAsStream() {
-        return null;
+        return String.join(", ", getAccoutStream()
+                .map(account -> account.getCurrency().toString())
+                .collect(Collectors.toCollection(TreeSet::new)));
     }
 
     /**
@@ -674,21 +691,22 @@ class WorkShop {
      * Zwraca zbiór walut w jakich są rachunki.
      */
     private Set<Currency> getCurenciesSet() {
-        return null;
+        return getAccoutStream().map(Account::getCurrency)
+                .collect(Collectors.toSet());
     }
 
     /**
      * Tworzy strumień rachunków.
      */
     private Stream<Account> getAccoutStream() {
-        return null;
+        return getUserStream().flatMap(user -> user.getAccounts().stream());
     }
 
     /**
      * Tworzy strumień użytkowników.
      */
     private Stream<User> getUserStream() {
-        return null;
+        return getCompanyStream().flatMap(company -> company.getUsers().stream());
     }
 
 }
