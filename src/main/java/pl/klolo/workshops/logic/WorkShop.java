@@ -5,16 +5,12 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import pl.klolo.workshops.domain.Account;
-import pl.klolo.workshops.domain.AccountType;
-import pl.klolo.workshops.domain.Company;
+import pl.klolo.workshops.domain.*;
 import pl.klolo.workshops.domain.Currency;
-import pl.klolo.workshops.domain.Holding;
-import pl.klolo.workshops.domain.Permit;
-import pl.klolo.workshops.domain.User;
 import pl.klolo.workshops.mock.HoldingMockGenerator;
 
 class WorkShop {
@@ -25,7 +21,7 @@ class WorkShop {
     private final List<Holding> holdings;
 
     // Predykat określający czy użytkownik jest kobietą
-    private final Predicate<User> isWoman = null;
+    private final Predicate<User> isWoman = user -> user.getSex().equals(Sex.WOMAN);
 
     WorkShop() {
         final HoldingMockGenerator holdingMockGenerator = new HoldingMockGenerator();
@@ -227,12 +223,17 @@ class WorkShop {
      * UWAGA: Zadanie z gwiazdką. Nie używamy zmiennych.
      */
     String getAllCompaniesNamesAsStringUsingStringBuilder() {
-        return null;
-//                getStreamOfHoldings(holdings)
-//                .flatMap(holding -> holding.getCompanies().stream()
-//                .map(company -> company.getName()).collect(StringBuilder::new, (x,y) -> x.append(y), (a,b) -> a.append("+").append(b)))
-//                .toString();
+        return holdings
+                .stream()
+                .map(holding -> holding.getCompanies())
+                .flatMap(List::stream)
+                .map(Company::getName)
+                .collect(Collector.of(StringBuilder::new,
+                        (stringBuilder, str) -> stringBuilder.append(str).append("+"),
+                        StringBuilder::append,
+                        StringBuilder::toString)); //zwraca + na końcu
     }
+
 
     /**
      * Zwraca liczbę wszystkich rachunków, użytkowników we wszystkich firmach.
@@ -304,7 +305,16 @@ class WorkShop {
      * Zwraca liczbę kobiet we wszystkich firmach.
      */
     long getWomanAmount() {
-        return -1;
+    long numberOfAllWomen = 0;
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
+                for (User user : company.getUsers()) {
+                    if (user.getSex().equals(Sex.WOMAN))
+                    numberOfAllWomen++;
+                }
+            }
+        }
+        return numberOfAllWomen;
     }
 
     /**
@@ -312,7 +322,9 @@ class WorkShop {
      * czy mamy doczynienia z kobietą inech będzie polem statycznym w klasie. Napisz to za pomocą strumieni.
      */
     long getWomanAmountAsStream() {
-        return -1;
+        return getUserStream()
+                .filter(isWoman)
+                .count();
     }
 
 
@@ -706,7 +718,9 @@ class WorkShop {
      * Tworzy strumień użytkowników.
      */
     private Stream<User> getUserStream() {
-        return getCompanyStream().flatMap(company -> company.getUsers().stream());
+        return holdings.stream()
+                .flatMap(holding -> holding.getCompanies().stream())
+                .flatMap(company -> company.getUsers().stream());
     }
 
 }
