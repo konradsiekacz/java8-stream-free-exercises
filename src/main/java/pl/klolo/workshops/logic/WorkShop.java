@@ -1,6 +1,8 @@
 package pl.klolo.workshops.logic;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -305,12 +307,12 @@ class WorkShop {
      * Zwraca liczbę kobiet we wszystkich firmach.
      */
     long getWomanAmount() {
-    long numberOfAllWomen = 0;
+        long numberOfAllWomen = 0;
         for (Holding holding : holdings) {
             for (Company company : holding.getCompanies()) {
                 for (User user : company.getUsers()) {
                     if (user.getSex().equals(Sex.WOMAN))
-                    numberOfAllWomen++;
+                        numberOfAllWomen++;
                 }
             }
         }
@@ -332,7 +334,9 @@ class WorkShop {
      * Przelicza kwotę na rachunku na złotówki za pomocą kursu określonego w enum Currency. Ustaw precyzje na 3 miejsca po przecinku.
      */
     BigDecimal getAccountAmountInPLN(final Account account) {
-        return null;
+
+        return account.getAmount().multiply(BigDecimal.valueOf(account.getCurrency().rate))
+                .setScale(3, RoundingMode.HALF_DOWN);
     }
 
 
@@ -340,7 +344,10 @@ class WorkShop {
      * Przelicza kwotę na rachunku na złotówki za pomocą kursu określonego w enum Currency. Napisz to za pomocą strumieni.
      */
     BigDecimal getAccountAmountInPLNAsStream(final Account account) {
-        return null;
+        return getAccoutStream()
+                .map(account1 -> account.getAmount().multiply(BigDecimal.valueOf(account.getCurrency().rate)
+                        .setScale(3, RoundingMode.HALF_DOWN)))
+                .reduce(BigDecimal.ZERO, BigDecimal::multiply);
     }
 
     /**
