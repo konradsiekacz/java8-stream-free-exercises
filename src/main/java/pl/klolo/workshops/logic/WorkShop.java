@@ -1,6 +1,7 @@
 package pl.klolo.workshops.logic;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.*;
@@ -346,22 +347,37 @@ class WorkShop {
     BigDecimal getAccountAmountInPLNAsStream(final Account account) {
         return getAccoutStream()
                 .map(account1 -> account.getAmount().multiply(BigDecimal.valueOf(account.getCurrency().rate)
-                        .setScale(3, RoundingMode.HALF_DOWN)))
-                .reduce(BigDecimal.ZERO, BigDecimal::multiply);
+                        .setScale(2, RoundingMode.HALF_UP)))
+                .findFirst()
+                .get();
     }
 
     /**
      * Przelicza kwotę na podanych rachunkach na złotówki za pomocą kursu określonego w enum Currency  i sumuje ją.
      */
     BigDecimal getTotalCashInPLN(final List<Account> accounts) {
-        return null;
+        BigDecimal totalCashInPLN = BigDecimal.ZERO;
+        for (Account account : accounts) {
+            totalCashInPLN = totalCashInPLN.add(account.getAmount()
+                    .multiply(BigDecimal.valueOf(account.getCurrency().rate)));
+        }
+
+        return totalCashInPLN;
     }
 
     /**
      * Przelicza kwotę na podanych rachunkach na złotówki za pomocą kursu określonego w enum Currency  i sumuje ją. Napisz to za pomocą strumieni.
      */
     BigDecimal getTotalCashInPLNAsStream(final List<Account> accounts) {
-        return null;
+        return Stream.of(accounts)
+                .flatMap(accounts1 -> accounts.stream())
+                .map(account -> account.getAmount().multiply(BigDecimal.valueOf(account.getCurrency().rate)))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+//        return accounts.stream()
+//                .map(this::getAccountAmountInPLN)
+//                .reduce(BigDecimal::add)
+//                .get();
     }
 
     /**
