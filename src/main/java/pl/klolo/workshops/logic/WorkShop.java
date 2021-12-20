@@ -385,10 +385,10 @@ class WorkShop {
      */
     Set<String> getUsersForPredicate(final Predicate<User> userPredicate) {
         Set<String> usersName = new HashSet<>();
-        for (Holding holding:holdings) {
-            for (Company company: holding.getCompanies()) {
-                for (User user: company.getUsers()) {
-                    if (userPredicate.test(user)){
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
+                for (User user : company.getUsers()) {
+                    if (userPredicate.test(user)) {
                         usersName.add(user.getFirstName());
                     }
                 }
@@ -403,7 +403,7 @@ class WorkShop {
     Set<String> getUsersForPredicateAsStream(final Predicate<User> userPredicate) {
         return getUserStream()
                 .filter(userPredicate)
-                .map(user -> user.getFirstName())
+                .map(User::getFirstName)
                 .collect(Collectors.toSet());
     }
 
@@ -411,7 +411,20 @@ class WorkShop {
      * Metoda filtruje użytkowników starszych niż podany jako parametr wiek, wyświetla ich na konsoli, odrzuca mężczyzn i zwraca ich imiona w formie listy.
      */
     List<String> getOldWoman(final int age) {
-        return null;
+        List<String> names = new ArrayList<>();
+        for (Holding holding : holdings) {
+            for (Company company : holding.getCompanies()) {
+                for (User user : company.getUsers()) {
+                    if (user.getAge() > age) {
+                        System.out.println(user.toString());
+                        if (user.getSex().equals(Sex.WOMAN)) {
+                            names.add(user.getFirstName());
+                        }
+                    }
+                }
+            }
+        }
+        return names;
     }
 
     /**
@@ -419,14 +432,18 @@ class WorkShop {
      * to za pomocą strumieni.
      */
     List<String> getOldWomanAsStream(final int age) {
-        return null;
+        return getUserStream()
+                .filter(user -> user.getAge() > age)
+                .filter(user -> user.getSex() == Sex.WOMAN)
+                .map(User::getFirstName)
+                .collect(Collectors.toList());
     }
 
     /**
      * Dla każdej firmy uruchamia przekazaną metodę.
      */
     void executeForEachCompany(final Consumer<Company> consumer) {
-        throw new IllegalArgumentException();
+        getCompanyStream().forEach(consumer);
     }
 
     /**
